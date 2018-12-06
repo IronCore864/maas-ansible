@@ -1,0 +1,8 @@
+maas_admin_username: admin
+maas_admin_passwd: admin
+maas_admin_email: admin@kigroup.de
+maas_admin_api_key: /home/{{ ansible_user }}/maas_admin_api_key
+maas_api_server: localhost
+maas_url: http://{{ maas_api_server }}:5240/MAAS/api/2.0
+
+maas_admin_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

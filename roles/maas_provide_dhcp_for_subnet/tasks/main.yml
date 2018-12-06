@@ -1,0 +1,26 @@
+---
+- name: get fabric id
+  shell: "maas {{ maas_admin_username }} subnet read {{ subnet_cidr }} | grep fabric_id | cut -d ':' -f 2 | cut -d ',' -f 1 | sed 's/ //g'"
+  register: fabric_id
+  changed_when: False
+
+- name: get vlan id
+  shell: "maas {{ maas_admin_username }} subnet read {{ subnet_cidr }} | grep vid | cut -d ':' -f 2 | cut -d ',' -f 1 | sed 's/ //g'"
+  register: vid 
+  changed_when: False
+
+- name: check if reserved ip ranges exists or not
+  shell: "maas {{ maas_admin_username }} ipranges read | grep {{ subnet_cidr }}"
+  changed_when: False
+  ignore_errors: True 
+  register: ip_range_exists
+
+- name: create reserved ip range
+  shell: "maas {{ maas_admin_username }} ipranges create type=dynamic start_ip={{ reserved_ip_start }} end_ip={{ reserved_ip_end }} comment='This is a reserved dynamic range'"
+  when: ip_range_exists is failed
+
+- name: provide dhcp for subnet
+  shell: "maas {{ maas_admin_username }} vlan update {{ fabric_id.stdout }} {{ vid.stdout }} dhcp_on=True primary_rack=maas"
+  register: provide_dhcp
+
+- assert: { that: "'\"dhcp_on\": true' in provide_dhcp.stdout"}

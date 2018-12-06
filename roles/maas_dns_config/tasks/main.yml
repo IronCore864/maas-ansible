@@ -1,0 +1,6 @@
+---
+- name: Config maas server as DNS server
+  lineinfile:
+    path: /etc/resolv.conf
+    regexp: '^nameserver.*$'
+    line: "nameserver {{ dns_server }}"

@@ -1,0 +1,20 @@
+# ansible config
+ansible_user: ubuntu
+ansible_ssh_common_args: -o StrictHostKeyChecking=no
+ansible_python_interpreter: /usr/bin/python3
+
+# maas server config
+maas_server: 172.16.1.10
+
+# since we have only 1 server as both region and rack controller, everything is the same
+ntp_server: "{{ maas_server }}"
+dns_server: "{{ maas_server }}"
+maas_api_server: "{{ maas_server }}"
+
+# maas admin
+maas_admin_username: admin
+
+# maas subnet setings
+subnet_cidr: 172.16.1.0/24
+reserved_ip_start: 172.16.1.191
+reserved_ip_end: 172.16.1.254

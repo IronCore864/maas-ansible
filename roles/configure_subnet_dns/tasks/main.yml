@@ -1,0 +1,17 @@
+---
+- name: check if subnet exits
+  command: maas {{ maas_admin_username }} subnet read {{ subnet_cidr }}
+  ignore_errors: yes
+  register: response
+  changed_when: false
+
+- meta: end_play
+  when: "'Not Found' in response.stdout"
+
+- name: Update subnet DNS
+  command: "maas {{ maas_admin_username }} subnet update {{ subnet_cidr }} dns_servers={{ subnet_dns_ip }}"
+  register: response
+
+- assert: { that: "subnet_dns_ip in json_response['dns_servers']" }
+  vars: 
+    json_response: "{{ response.stdout | from_json }}"

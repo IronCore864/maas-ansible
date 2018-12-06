@@ -1,0 +1,36 @@
+---
+- name: Install MAAS and MAAS CLI
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  with_items:
+    - maas
+    - maas-cli
+
+- name: Update on which NIC MAAS is working on
+  lineinfile:
+    path: /etc/maas/regiond.conf
+    regexp: "^maas_url"
+    line: "maas_url: http://{{ maas_server }}:5240/MAAS"
+
+- name: restart rackd/regiond
+  service:
+    state: restarted
+    name: "{{ item }}"
+  with_items:
+    - maas-rackd
+    - maas-regiond
+
+- name: Wait for 5240 to become open
+  wait_for:
+    port: 5240
+    delay: 5
+ 
+- name: Create MAAS admin user
+  command: "maas createadmin --username={{ maas_admin_username }} --password={{ maas_admin_passwd }} --email={{ maas_admin_email }}"
+
+- include_role:
+    name: maas_login
+
+- name: Upload public key for MAAS admin
+  command: maas admin sshkeys create "key={{ maas_admin_public_key }}"

@@ -1,0 +1,17 @@
+---
+- name: Make sure chrony is installed
+  apt:
+    name: chrony
+    update_cache: yes
+
+- name: Delete fefault pool from chrony
+  lineinfile:
+    path: /etc/chrony/chrony.conf
+    state: absent
+    regexp: '^pool.*$'
+
+- name: Config maas server as NTP source
+  lineinfile:
+    path: /etc/chrony/chrony.conf
+    line: "server {{ ntp_server }}"
+  register: ntp_config

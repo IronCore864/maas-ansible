@@ -1,0 +1,31 @@
+#!/bin/bash -ex
+# --- Start MAAS 1.0 script metadata ---
+# name: hardware_check_cpu
+# title: CPU architecture and core number check
+# description: Validate the architecture and core number meet the expected values
+# script_type: commissioning
+# recommission: True
+# --- End MAAS 1.0 script metadata ---
+
+arch_expected="x86_64"
+min_cores_num=4
+
+arch=$(lscpu | grep Architecture | awk '{print $2}')
+cores=$(lscpu | grep -E "^CPU\(s\):" | awk '{print $2}')
+
+if [ "$arch" == "$arch_expected" ]; then
+	echo "CPU architecture check passed!"
+	
+else
+	echo "CPU architecture is not x86_64, but: $architecture"
+	exit 1
+fi
+
+if (( $cores >= $min_cores_num )); then
+	echo "CPU core num check passed!"
+else
+	echo "CPU core num check failed, expected at least: $min_cores_num, but got: $cores"
+	exit 1
+fi
+
+exit 0

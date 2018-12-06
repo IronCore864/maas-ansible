@@ -1,0 +1,11 @@
+---
+- name: Fetch MAAS API key
+  shell: "maas-region apikey --username={{ maas_admin_username }} > {{ maas_admin_api_key }}"
+  changed_when: False
+
+- name: MAAS admin login
+  shell: "maas login {{ maas_admin_username }} {{ maas_url }} - < {{ maas_admin_api_key }}"
+  register: login_res
+  changed_when: False
+
+- assert: { that: "'You are now logged in to the MAAS server' in login_res.stdout"}

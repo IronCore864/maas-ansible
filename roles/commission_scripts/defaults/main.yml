@@ -1,0 +1,5 @@
+commission_scripts_list:
+  - hardware_check_cpu
+  - hardware_check_vendor_product_mem_disk
+
+maas_admin_username: admin

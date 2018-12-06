@@ -1,0 +1,2 @@
+subnet_cidr: 172.16.1.0/24
+subnet_dns_ip: "{{ dns_server }}"

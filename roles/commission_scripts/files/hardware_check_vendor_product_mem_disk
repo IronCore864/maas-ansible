@@ -1,0 +1,71 @@
+#!/bin/bash -ex
+# --- Start MAAS 1.0 script metadata ---
+# name: hardware_check_vendor_product_mem_disk
+# title: Memory size, disk number/size, vendor, product name check
+# description: Validate if the memory/disk/vendor/product are as expected
+# packages: {apt: jq}
+# script_type: commissioning
+# recommission: True
+# --- End MAAS 1.0 script metadata ---
+
+min_mem_gb=16
+
+min_disk_num=1
+min_disk_size_gb=1000
+
+product_expected="Synergy 480 Gen10"
+vendor_expected="HPE"
+
+sudo lshw -json >out
+
+# product check
+product=$(jq -r .product out)
+
+if [[ "$product" ==  *"$product_expected"* ]]; then
+	echo "Product check passed!"
+else
+	echo "Product check failed, expected: $product_expected, value got: $product"
+	exit 1
+fi
+
+# vendor check
+vendor=$(jq -r .vendor out)
+
+if [ "$vendor" == "$vendor_expected" ]; then
+	echo "Vendor check passed!"
+	
+else
+	echo "Vendor check failed, expected: $vendor_expected, value got: $vendor"
+	exit 1
+fi
+
+# mem size check
+mem=$(jq '[.children[0].children[] | select(.id | contains("memory:")) | select(.capacity != null) | .children[] | select(.size != null) | .size] | add | ./1024/1024/1024 ' out)
+
+if (( $mem > $min_mem_gb )); then
+	echo "Memory size check passed!"
+else
+	echo "Memory size check failed, expected at least $min_mem_gb GB, but got $mem GB."
+	exit 1
+fi
+
+# disk number/size check
+disk_num=$(jq '[.children[0].children[] | select(.id | contains("pci")) | select(.children != null) | .children[] | select(.id | contains("storage")) | .children[] | select(.id | contains("disk:")) | .size] | length' out)
+
+if (( $disk_num > $min_disk_num )); then
+	echo "Disk number check passed!"
+else
+	echo "Disk number check failed, expected at least $min_disk_num, but got $disk_num."
+	exit 1
+fi
+
+disk_size_total=$(jq '[.children[0].children[] | select(.id | contains("pci")) | select(.children != null) | .children[] | select(.id | contains("storage")) | .children[] | select(.id | contains("disk:")) | .size | ./1000/1000/1000 | floor] | add' out)
+
+if (( $disk_size_total > $min_disk_size_gb )); then
+	echo "Disk size check passed!"
+else
+	echo "Disk size check failed, expected at least $min_disk_size_gb GB, but got $disk_size_total GB."
+	exit 1
+fi
+
+exit 0

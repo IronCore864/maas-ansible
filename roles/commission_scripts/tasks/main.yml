@@ -1,0 +1,12 @@
+---
+- name: Upload commission scripts
+  shell: "maas {{ maas_admin_username }} node-scripts create script@={{ role_path }}/files/{{ item }}"
+  with_items: "{{ commission_scripts_list }}"
+  ignore_errors: true
+
+- name: Check commission scripts
+  shell: "maas {{ maas_admin_username }} node-scripts read type=commission"
+  register: commission_scripts_res
+
+- assert: { that: "'{{ item }}' in commission_scripts_res.stdout"}
+  with_items: "{{ commission_scripts_list }}"

@@ -1,0 +1,6 @@
+---
+- name: Install tools packages
+  apt:
+    name: lldpd
+    update_cache: yes
+

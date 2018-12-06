@@ -1,0 +1,24 @@
+---
+# For every hosts, including sudo group/password-less ssh config, and lldp installation
+- hosts: all
+  become: true
+  roles:
+    - role: init_users_groups_ssh
+    - role: install_lldp
+    - role: maas_dns_config
+
+# maas server config, including providing dns for subnet, uploading custom commission scripts
+- hosts: maas-server
+  become: true
+  roles:
+    - role: maas_login
+    - role: configure_subnet_dns
+    - role: maas_provide_dhcp_for_subnet
+    - role: commission_scripts
+
+# roles for all the nodes except maas server, including setting ntp/dns to maas server instead of default value
+- hosts: maas-nodes
+  become: true
+  roles:
+    - role: maas_node_ntp_config
+

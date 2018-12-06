@@ -1,0 +1,6 @@
+---
+- hosts: maas-vm
+  become: true
+  roles:
+    - role: init_users_groups_ssh
+    - role: maas_install
