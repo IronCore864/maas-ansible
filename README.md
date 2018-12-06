@@ -58,3 +58,13 @@ This playbook also is compatible with local VM maas created by the previous step
 
 **Note:** this is not Not tested because the maas server does not have access to all the nodes, some are created by others.
 
+## 4 Others
+
+### 4.1 MAAS CLI
+
+Examples see [HERE](maas_cli.md). 
+
+### 4.2 MAAS HA
+
+Discussion see [HERE](maas_ha.md).
+
